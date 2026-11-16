@@ -78,8 +78,7 @@ header{padding:12px 15px;background:#091b2d;display:flex;align-items:center;just
    busy=true; lastFetch=Date.now(); status.textContent='در حال دریافت…';
    try{
      const c=map.getCenter();
-     const radius=Math.min(250,Math.max(25,Math.round(45/Math.pow(2,map.getZoom()-3))));
-    
+    const radius=2000;
 const url = `https://azn-flight-radar-api.onrender.com/api/aircraft?lat=${c.lat.toFixed(3)}&lon=${c.lng.toFixed(3)}&dist=${radius}`;
 const r = await fetch(url, { cache: 'no-store' });
 if (!r.ok) {

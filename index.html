@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="fa" dir="rtl">
 <head>
@@ -5,110 +6,601 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#071525">
 <title>AZN Flight Radar</title>
+
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
 <style>
-:root{--bg:#071525;--panel:#10243a;--cyan:#42d7ff;--muted:#9db2c8}
-*{box-sizing:border-box}html,body{height:100%;margin:0;background:var(--bg);color:#fff;font-family:Tahoma,Arial,sans-serif}
+:root{
+ --bg:#071525;
+ --panel:#10243a;
+ --cyan:#42d7ff;
+ --muted:#9db2c8;
+}
+*{box-sizing:border-box}
+html,body{
+ height:100%;margin:0;
+ background:var(--bg);color:white;
+ font-family:Tahoma,Arial,sans-serif;
+}
 #app{height:100%;display:flex;flex-direction:column}
-header{padding:12px 15px;background:#091b2d;display:flex;align-items:center;justify-content:space-between;z-index:500;box-shadow:0 2px 12px #0006}
-.brand{font-weight:800;font-size:17px}.brand small{display:block;color:var(--muted);font-size:10px;font-weight:400;margin-top:4px}
+header{
+ padding:12px 15px;background:#091b2d;
+ display:flex;align-items:center;
+ justify-content:space-between;
+ z-index:500;box-shadow:0 2px 12px #0006;
+}
+.brand{font-weight:800;font-size:17px}
+.brand small{
+ display:block;color:var(--muted);
+ font-size:10px;font-weight:400;margin-top:4px
+}
 .status{font-size:11px;color:#8ee7a6}
 #map{flex:1;min-height:0;background:#0c2032}
-.bottom{background:#091b2d;padding:10px 12px 14px;z-index:500}
-.stats{display:flex;gap:8px;margin-bottom:9px}.stat{background:var(--panel);border:1px solid #1d3a56;border-radius:10px;padding:8px;flex:1;text-align:center}
-.stat b{display:block;font-size:17px;color:var(--cyan)}.stat span{font-size:10px;color:var(--muted)}
-.actions{display:flex;gap:8px}.actions button{flex:1;border:1px solid #2b526f;background:#102b43;color:#fff;border-radius:10px;padding:10px;font-size:12px}
-.actions button.primary{background:#087eaa;border-color:#087eaa}
-#detail{display:none;position:absolute;bottom:120px;right:12px;left:12px;background:#0b2034f5;border:1px solid #2c5876;border-radius:14px;padding:13px;z-index:700;box-shadow:0 8px 25px #0008}
-#detail h3{margin:0 0 8px;font-size:15px;color:var(--cyan)}#detail p{margin:5px 0;font-size:12px;color:#d8e7f5}
-.plane{font-size:21px;color:#ffdc65;text-shadow:0 1px 4px #000}
-.leaflet-control-attribution{font-size:8px!important}
-.notice{font-size:9px;color:#8da4ba;text-align:center;margin-top:8px;line-height:1.6}
-.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#10243a;color:white}
+.bottom{
+ background:#091b2d;padding:10px 12px 14px;
+ z-index:500;
+}
+.stats{display:flex;gap:8px;margin-bottom:9px}
+.stat{
+ background:var(--panel);
+ border:1px solid #1d3a56;
+ border-radius:10px;padding:8px;
+ flex:1;text-align:center;
+}
+.stat b{
+ display:block;font-size:17px;color:var(--cyan)
+}
+.stat span{font-size:10px;color:var(--muted)}
+.actions{display:flex;gap:8px}
+.actions button{
+ flex:1;border:1px solid #2b526f;
+ background:#102b43;color:white;
+ border-radius:10px;padding:10px;font-size:12px
+}
+.actions button.primary{
+ background:#087eaa;border-color:#087eaa
+}
+#detail{
+ display:none;position:absolute;
+ bottom:120px;right:12px;left:12px;
+ background:#0b2034f5;
+ border:1px solid #2c5876;
+ border-radius:14px;padding:13px;
+ z-index:700;box-shadow:0 8px 25px #0008
+}
+#detail h3{
+ margin:0 0 8px;font-size:15px;color:var(--cyan)
+}
+#detail p{
+ margin:5px 0;font-size:12px;color:#d8e7f5
+}
+.notice{
+ font-size:9px;color:#8da4ba;
+ text-align:center;margin-top:8px;line-height:1.6
+}
 
-#subscriptionGate{position:absolute;inset:0;background:#071525;z-index:2000;display:none;align-items:center;justify-content:center;padding:20px}
-.gateCard{width:100%;max-width:480px;background:#10243a;border:1px solid #2b526f;border-radius:18px;padding:20px;text-align:center}
-.gateCard h2{color:#42d7ff}.gateCard p{font-size:13px;line-height:1.9;color:#d5e5f3}
-.gateCard input{width:100%;padding:13px;margin:6px 0;border-radius:9px;border:1px solid #35546c;background:#071525;color:white}
-.gateCard button{width:100%;padding:12px;margin-top:9px;border:0;border-radius:9px;background:#087eaa;color:white;font-size:14px}
-.gateCard .small{font-size:10px;color:#9db2c8}.plans{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:15px 0}
-.plan{padding:12px;background:#071b2d;border:1px solid #31516b;border-radius:10px}
-.plan b,.plan strong,.plan small{display:block;margin:4px}.plan strong{color:#42d7ff}
+/* ظاهر حرفه‌ای نقشه */
+.leaflet-container{font-family:Tahoma,Arial,sans-serif}
+.leaflet-tooltip{
+ background:#071b2d!important;
+ border:1px solid #42d7ff!important;
+ color:white!important;
+ border-radius:7px!important;
+ padding:5px 8px!important;
+ font-size:10px!important;
+ box-shadow:0 2px 8px #0009!important;
+}
+.leaflet-tooltip:before{
+ border-top-color:#42d7ff!important
+}
+.leaflet-control-zoom a{
+ background:#102b43!important;
+ color:white!important;
+ border-color:#31516b!important;
+}
+.leaflet-control-layers{
+ background:#0b2034ee!important;
+ color:white!important;
+ border:1px solid #31516b!important;
+ border-radius:10px!important;
+}
+.leaflet-control-scale-line{
+ background:#071b2dcc!important;
+ color:white!important;
+ border-color:#d5e5f3!important;
+ font-size:9px!important;
+}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip{
+ background:#10243a;color:white
+}
+.leaflet-control-attribution{font-size:8px!important}
+
+/* آیکون هواپیما */
+.plane-marker{
+ width:34px;height:34px;
+ border-radius:50%;
+ display:flex;align-items:center;
+ justify-content:center;
+ background:#071b2de8;
+ border:1px solid #42d7ff;
+ box-shadow:0 0 12px #42d7ff77;
+}
+.plane-marker span{
+ font-size:21px;color:#ffe078;
+ text-shadow:0 1px 5px #000;
+ display:block;line-height:1;
+}
+
+/* پنل اشتراک */
+#subscriptionGate{
+ position:absolute;inset:0;background:#071525;
+ z-index:2000;display:none;
+ align-items:center;justify-content:center;padding:20px
+}
+.gateCard{
+ width:100%;max-width:480px;
+ background:#10243a;border:1px solid #2b526f;
+ border-radius:18px;padding:20px;text-align:center
+}
+.gateCard h2{color:#42d7ff}
+.gateCard p{
+ font-size:13px;line-height:1.9;color:#d5e5f3
+}
+.gateCard input{
+ width:100%;padding:13px;margin:6px 0;
+ border-radius:9px;border:1px solid #35546c;
+ background:#071525;color:white
+}
+.gateCard button{
+ width:100%;padding:12px;margin-top:9px;
+ border:0;border-radius:9px;
+ background:#087eaa;color:white;font-size:14px
+}
+.gateCard .small{font-size:10px;color:#9db2c8}
+.plans{
+ display:grid;grid-template-columns:1fr 1fr;
+ gap:8px;margin:15px 0
+}
+.plan{
+ padding:12px;background:#071b2d;
+ border:1px solid #31516b;border-radius:10px
+}
+.plan b,.plan strong,.plan small{
+ display:block;margin:4px
+}
+.plan strong{color:#42d7ff}
 </style>
 </head>
+
 <body>
-<div id="subscriptionGate"></div><div id="app">
-<header><div class="brand">✈ AZN FLIGHT RADAR<small>رادار زنده هواپیماها</small></div><div class="status" id="status">در حال آماده‌سازی…</div></header>
+
+<div id="subscriptionGate"></div>
+
+<div id="app">
+
+<header>
+ <div class="brand">
+  ✈ AZN FLIGHT RADAR
+  <small>رادار زنده هواپیماها</small>
+ </div>
+ <div class="status" id="status">در حال آماده‌سازی…</div>
+</header>
+
 <div id="map"></div>
-<div id="detail"><h3 id="dtitle">اطلاعات پرواز</h3><p id="d1"></p><p id="d2"></p><p id="d3"></p><p id="d4"></p></div>
+
+<div id="detail">
+ <h3 id="dtitle">اطلاعات پرواز</h3>
+ <p id="d1"></p>
+ <p id="d2"></p>
+ <p id="d3"></p>
+ <p id="d4"></p>
+</div>
+
 <div class="bottom">
-<div class="stats">
- <div class="stat"><b id="count">۰</b><span>هواپیمای دریافت‌شده</span></div>
- <div class="stat"><b id="updated">—</b><span>آخرین بروزرسانی</span></div>
- <div class="stat"><b id="zoom">—</b><span>بزرگنمایی نقشه</span></div>
+
+ <div class="stats">
+  <div class="stat">
+   <b id="count">۰</b>
+   <span>هواپیمای دریافت‌شده</span>
+  </div>
+
+  <div class="stat">
+   <b id="updated">—</b>
+   <span>آخرین بروزرسانی</span>
+  </div>
+
+  <div class="stat">
+   <b id="zoom">—</b>
+   <span>بزرگنمایی نقشه</span>
+  </div>
+ </div>
+
+ <div class="actions">
+  <button class="primary" id="refresh">↻ بروزرسانی</button>
+  <button id="locate">◎ موقعیت من</button>
+  <button id="closeDetail">بستن جزئیات</button>
+ </div>
+
+ <div class="notice">
+  اطلاعات پرواز از شبکه عمومی ADSB.lol دریافت می‌شود.
+  مسیرهای ترسیم‌شده بر اساس موقعیت‌های دریافت‌شده هستند.
+  اینترنت لازم است.
+ </div>
+
 </div>
-<div class="actions"><button class="primary" id="refresh">↻ بروزرسانی</button><button id="locate">◎ موقعیت من</button><button id="closeDetail">بستن جزئیات</button></div>
-<div class="notice">داده‌های پرواز از شبکه عمومی ADSB.lol دریافت می‌شوند. پوشش و اطلاعات هر پرواز ممکن است متفاوت باشد. نقشه و اینترنت لازم است.</div>
 </div>
-</div>
+
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
 (function(){
+
  const fa=n=>Number(n||0).toLocaleString('fa-IR');
- const map=L.map('map',{zoomControl:false}).setView([32,45],4);
+
+ // ایجاد نقشه
+ const map=L.map('map',{
+  zoomControl:false,
+  preferCanvas:true
+ }).setView([32,45],4);
+
  L.control.zoom({position:'topleft'}).addTo(map);
- L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(map);
- const markers=new Map(); let timer=null, busy=false, lastFetch=0;
+
+ L.control.scale({
+  position:'bottomleft',
+  metric:true,
+  imperial:false,
+  maxWidth:120
+ }).addTo(map);
+
+ // نقشه تاریک اصلی
+ const darkMap=L.tileLayer(
+  'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+  {
+   maxZoom:20,
+   attribution:'© OpenStreetMap © CARTO'
+  }
+ );
+
+ // نقشه روشن
+ const lightMap=L.tileLayer(
+  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+  {
+   maxZoom:19,
+   attribution:'© OpenStreetMap'
+  }
+ );
+
+ // نقشه ماهواره‌ای
+ const satelliteMap=L.tileLayer(
+  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  {
+   maxZoom:19,
+   attribution:'Tiles © Esri'
+  }
+ );
+
+ // لایه نام شهرها و کشورها روی ماهواره
+ const satelliteLabels=L.tileLayer(
+  'https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+  {maxZoom:19,opacity:0.95}
+ );
+
+ darkMap.addTo(map);
+
+ L.control.layers({
+  '🌙 نقشه تاریک راداری':darkMap,
+  '☀️ نقشه روشن':lightMap,
+  '🛰️ نقشه ماهواره‌ای':satelliteMap
+ },null,{
+  position:'topright',
+  collapsed:true
+ }).addTo(map);
+
+ // افزودن برچسب‌ها به نمای ماهواره‌ای
+ map.on('baselayerchange',function(e){
+  if(e.layer===satelliteMap){
+   satelliteLabels.addTo(map);
+  }else{
+   if(map.hasLayer(satelliteLabels)){
+    map.removeLayer(satelliteLabels);
+   }
+  }
+ });
+
+ const markers=new Map();
+ const trails=new Map();
+ const positions=new Map();
+
+ let busy=false;
+ let lastFetch=0;
+ let timer=null;
+
  const status=document.getElementById('status');
+
+ // آیکون اختصاصی هواپیما
  function planeIcon(track){
-   return L.divIcon({className:'',html:`<div style="transform:rotate(${Number(track)||0}deg);font-size:22px;color:#ffdc65;text-shadow:0 1px 5px #000">✈</div>`,iconSize:[26,26],iconAnchor:[13,13]});
+
+  return L.divIcon({
+   className:'',
+   html:`
+    <div class="plane-marker">
+     <span style="transform:rotate(${Number(track)||0}deg)">✈</span>
+    </div>
+   `,
+   iconSize:[34,34],
+   iconAnchor:[17,17]
+  });
  }
+
+ // اطلاعات پرواز
  function details(a){
-   document.getElementById('detail').style.display='block';
-   document.getElementById('dtitle').textContent=(a.flight||a.hex||'هواپیمای ناشناس').trim();
-   document.getElementById('d1').textContent='شناسه: '+(a.hex||'نامشخص')+' | ثبت: '+(a.r||'نامشخص');
-   document.getElementById('d2').textContent='نوع هواپیما: '+(a.t||'نامشخص');
-   document.getElementById('d3').textContent='ارتفاع: '+(a.alt_baro==='ground'?'روی زمین':(a.alt_baro!=null?fa(a.alt_baro)+' پا':'نامشخص'))+' | سرعت: '+(a.gs!=null?fa(Math.round(a.gs*1.852))+' کیلومتر/ساعت':'نامشخص');
-   document.getElementById('d4').textContent='جهت: '+(a.track!=null?fa(Math.round(a.track))+' درجه':'نامشخص')+' | اپراتور: '+(a.ownOp||'نامشخص');
+
+  document.getElementById('detail').style.display='block';
+
+  document.getElementById('dtitle').textContent=
+   (a.flight||a.hex||'هواپیمای ناشناس').trim();
+
+  document.getElementById('d1').textContent=
+   'شناسه: '+(a.hex||'نامشخص')+
+   ' | ثبت: '+(a.r||'نامشخص');
+
+  document.getElementById('d2').textContent=
+   'نوع هواپیما: '+(a.t||'نامشخص');
+
+  document.getElementById('d3').textContent=
+   'ارتفاع: '+
+   (a.alt_baro==='ground'
+    ?'روی زمین'
+    :(a.alt_baro!=null?fa(a.alt_baro)+' پا':'نامشخص'))+
+   ' | سرعت: '+
+   (a.gs!=null
+    ?fa(Math.round(a.gs*1.852))+' کیلومتر/ساعت'
+    :'نامشخص');
+
+  document.getElementById('d4').textContent=
+   'جهت: '+
+   (a.track!=null?fa(Math.round(a.track))+' درجه':'نامشخص')+
+   ' | اپراتور: '+(a.ownOp||'نامشخص');
  }
+
+ // ثبت مسیر حرکت هواپیما
+ function updateTrail(a){
+
+  const id=a.hex;
+  const point=[Number(a.lat),Number(a.lon)];
+
+  let history=positions.get(id)||[];
+
+  const last=history[history.length-1];
+
+  // جلوگیری از ثبت مختصات تکراری
+  if(!last ||
+     Math.abs(last[0]-point[0])>0.00001 ||
+     Math.abs(last[1]-point[1])>0.00001){
+
+   history.push(point);
+
+   // نگهداری حداکثر ۳۰ نقطه آخر
+   if(history.length>30){
+    history.shift();
+   }
+
+   positions.set(id,history);
+  }
+
+  let line=trails.get(id);
+
+  if(!line){
+
+   line=L.polyline(history,{
+    color:'#42d7ff',
+    weight:2.5,
+    opacity:0.85,
+    dashArray:'7,7',
+    lineCap:'round'
+   }).addTo(map);
+
+   trails.set(id,line);
+
+  }else{
+
+   line.setLatLngs(history);
+  }
+ }
+
+ // دریافت اطلاعات زنده
  async function load(){
-   if(busy || Date.now()-lastFetch<90000)return;
-   busy=true; lastFetch=Date.now(); status.textContent='در حال دریافت…';
-   try{
-     const c=map.getCenter();
-    const radius=2000;
-const url = `https://azn-flight-radar-api.onrender.com/api/aircraft?lat=${c.lat.toFixed(3)}&lon=${c.lng.toFixed(3)}&dist=${radius}`;
-const r = await fetch(url, { cache: 'no-store' });
-if (!r.ok) {
-  const err = await r.json().catch(() => ({}));
-  throw new Error(err.error || 'خطای سرور ' + r.status);
-}
-const data = await r.json();
-const aircraft = data.aircraft || data.ac || [];
-     const seen=new Set();
-     aircraft.forEach(a=>{
-       if(a.lat==null||a.lon==null||!a.hex)return;
-       seen.add(a.hex);
-       let m=markers.get(a.hex);
-       if(!m){m=L.marker([a.lat,a.lon],{icon:planeIcon(a.track)}).addTo(map);m.on('click',()=>details(a));markers.set(a.hex,m);}
-       else {m.setLatLng([a.lat,a.lon]);m.setIcon(planeIcon(a.track));m.off('click');m.on('click',()=>details(a));}
-       m.bindTooltip((a.flight||a.hex||'').trim(),{direction:'top'});
-     });
-     markers.forEach((m,id)=>{if(!seen.has(id)){map.removeLayer(m);markers.delete(id);}});
-     document.getElementById('count').textContent=fa(aircraft.length);
-     document.getElementById('updated').textContent=new Date().toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'});
-     document.getElementById('zoom').textContent=fa(map.getZoom());
-     status.textContent='● دریافت اطلاعات انجام شد';
-   }catch(e){status.textContent='⚠ '+e.message;}
-   finally{busy=false;}
+
+  if(busy || Date.now()-lastFetch<90000)return;
+
+  busy=true;
+  lastFetch=Date.now();
+
+  status.textContent='در حال دریافت اطلاعات…';
+
+  try{
+
+   const c=map.getCenter();
+
+   // شعاع ۲۰۰۰ کیلومتر از مرکز نقشه
+   const radius=2000;
+
+   const url=
+    `https://azn-flight-radar-api.onrender.com/api/aircraft?lat=${c.lat.toFixed(3)}&lon=${c.lng.toFixed(3)}&dist=${radius}`;
+
+   const r=await fetch(url,{cache:'no-store'});
+
+   if(!r.ok){
+
+    const err=await r.json().catch(()=>({}));
+
+    throw new Error(err.error||'خطای سرور '+r.status);
+   }
+
+   const data=await r.json();
+
+   const aircraft=data.aircraft||data.ac||[];
+
+   const seen=new Set();
+
+   aircraft.forEach(a=>{
+
+    if(a.lat==null||a.lon==null||!a.hex)return;
+
+    const lat=Number(a.lat);
+    const lon=Number(a.lon);
+
+    if(!Number.isFinite(lat)||!Number.isFinite(lon))return;
+
+    seen.add(a.hex);
+
+    let m=markers.get(a.hex);
+
+    if(!m){
+
+     m=L.marker([lat,lon],{
+      icon:planeIcon(a.track),
+      zIndexOffset:1000
+     }).addTo(map);
+
+     markers.set(a.hex,m);
+
+    }else{
+
+     m.setLatLng([lat,lon]);
+     m.setIcon(planeIcon(a.track));
+    }
+
+    // اطلاعات جدید برای پنل
+    m.off('click');
+
+    m.on('click',function(){
+     details(a);
+    });
+
+    // نام پرواز
+    m.bindTooltip(
+     (a.flight||a.hex||'').trim(),
+     {
+      direction:'top',
+      offset:[0,-12],
+      permanent:false
+     }
+    );
+
+    // مسیر حرکت
+    updateTrail(a);
+
+   });
+
+   // پاک کردن هواپیماهای خارج‌شده از داده دریافتی
+   markers.forEach((m,id)=>{
+
+    if(!seen.has(id)){
+
+     map.removeLayer(m);
+     markers.delete(id);
+
+     // مسیر قبلی حفظ می‌شود تا سابقه حرکت از بین نرود
+    }
+
+   });
+
+   // آمار
+   document.getElementById('count').textContent=
+    fa(aircraft.length);
+
+   document.getElementById('updated').textContent=
+    new Date().toLocaleTimeString('fa-IR',{
+     hour:'2-digit',
+     minute:'2-digit'
+    });
+
+   document.getElementById('zoom').textContent=
+    fa(map.getZoom());
+
+   status.textContent=
+    '● اطلاعات پرواز دریافت شد';
+
+  }catch(e){
+
+   status.textContent='⚠ '+e.message;
+
+  }finally{
+
+   busy=false;
+  }
  }
- document.getElementById('refresh').onclick=()=>{lastFetch=0;load();};
- document.getElementById('locate').onclick=()=>{if(!navigator.geolocation){status.textContent='موقعیت‌یاب در دسترس نیست';return;}navigator.geolocation.getCurrentPosition(p=>map.setView([p.coords.latitude,p.coords.longitude],7),()=>status.textContent='اجازه موقعیت داده نشد');};
- document.getElementById('closeDetail').onclick=()=>document.getElementById('detail').style.display='none';
- map.on('moveend',()=>{document.getElementById('zoom').textContent=fa(map.getZoom());});
- map.whenReady(()=>{load();timer=setInterval(load,90000);});
+
+ // بروزرسانی دستی
+ document.getElementById('refresh').onclick=()=>{
+
+  lastFetch=0;
+  load();
+
+ };
+
+ // موقعیت کاربر
+ document.getElementById('locate').onclick=()=>{
+
+  if(!navigator.geolocation){
+
+   status.textContent='موقعیت‌یاب در دسترس نیست';
+   return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+
+   p=>{
+
+    map.setView([
+     p.coords.latitude,
+     p.coords.longitude
+    ],7);
+
+   },
+
+   ()=>{
+
+    status.textContent='اجازه موقعیت داده نشد';
+
+   }
+
+  );
+
+ };
+
+ // بستن پنل جزئیات
+ document.getElementById('closeDetail').onclick=()=>{
+
+  document.getElementById('detail').style.display='none';
+
+ };
+
+ // تغییر بزرگنمایی
+ map.on('zoomend',()=>{
+
+  document.getElementById('zoom').textContent=
+   fa(map.getZoom());
+
+ });
+
+ // شروع
+ map.whenReady(()=>{
+
+  load();
+
+  timer=setInterval(load,90000);
+
+ });
+
 })();
 </script>
-<script src="subscription.js"></script></body></html>
+
+<script src="subscription.js"></script>
+
+</body>
+</html>

@@ -10,9 +10,9 @@
  function show(html){root.innerHTML=html;root.style.display='flex';mapEl.style.visibility='hidden';bottom.style.display='none';}
  function allow(){root.style.display='none';mapEl.style.visibility='visible';bottom.style.display='';}
  if(!ready || !window.supabase){
-   show(`<section class="gateCard"><h2>✈ AZN Flight Radar</h2><p>برای فعال‌سازی ورود و اشتراک، ابتدا اطلاعات پروژه Supabase باید تنظیم و فایل SQL اجرا شود.</p><p class="small">این نسخه هنوز پرداخت واقعی را فعال نمی‌کند؛ ابتدا باید درگاه معتبر انتخاب و تأیید شود.</p></section>`);
+   allow();
    return;
- }
+}
  const client=window.supabase.createClient(window.AZN_SUPABASE_URL,window.AZN_SUPABASE_ANON_KEY);
  const plans=[
   ['daily','یک‌روزه','۱ دلار'],

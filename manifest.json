@@ -1,0 +1,9 @@
+{
+  "name": "AZN Flight Radar",
+  "short_name": "AZN Radar",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#071525",
+  "theme_color": "#071525",
+  "orientation": "portrait"
+}

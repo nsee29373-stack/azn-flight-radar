@@ -32,7 +32,8 @@ jobs:
       - name: Create Android project
         run: |
           cordova create app com.azn.flightradar "AZN Flight Radar"
-          cp -r www app/
+          mkdir -p app/www
+          cp index.html config.js subscription.js app/www/
           cp config.xml app/config.xml
           cd app
           cordova platform add android
@@ -43,4 +44,3 @@ jobs:
         with:
           name: AZN-Flight-Radar-debug-apk
           path: app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
-

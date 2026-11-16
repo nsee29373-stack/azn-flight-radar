@@ -23,7 +23,7 @@ app.get("/api/aircraft", async (req, res) => {
   try {
     const lat = Number(req.query.lat ?? 32);
     const lon = Number(req.query.lon ?? 45);
-    const dist = Number(req.query.dist ?? 250);
+    const dist = Number(req.query.dist ?? 2000);
 
     if (
       !Number.isFinite(lat) ||
@@ -31,7 +31,7 @@ app.get("/api/aircraft", async (req, res) => {
       !Number.isFinite(dist) ||
       lat < -90 || lat > 90 ||
       lon < -180 || lon > 180 ||
-      dist < 1 || dist > 250
+      dist < 1 || dist > 2000
     ) {
       return res.status(400).json({ error: "Invalid coordinates or distance" });
     }

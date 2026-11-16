@@ -79,10 +79,15 @@ header{padding:12px 15px;background:#091b2d;display:flex;align-items:center;just
    try{
      const c=map.getCenter();
      const radius=Math.min(250,Math.max(25,Math.round(45/Math.pow(2,map.getZoom()-3))));
-     const url=`https://api.adsb.lol/v2/lat/${c.lat.toFixed(3)}/lon/${c.lng.toFixed(3)}/dist/${radius}`;
-     const r=await fetch(url,{cache:'no-store'});
-     if(!r.ok) throw new Error(r.status===429?'محدودیت درخواست سرویس':'خطای سرویس '+r.status);
-     const data=await r.json(), aircraft=data.aircraft||[];
+    
+const url = `https://azn-flight-radar-api.onrender.com/api/aircraft?lat=${c.lat.toFixed(3)}&lon=${c.lng.toFixed(3)}&dist=${radius}`;
+const r = await fetch(url, { cache: 'no-store' });
+if (!r.ok) {
+  const err = await r.json().catch(() => ({}));
+  throw new Error(err.error || 'خطای سرور ' + r.status);
+}
+const data = await r.json();
+const aircraft = data.aircraft || data.ac || [];
      const seen=new Set();
      aircraft.forEach(a=>{
        if(a.lat==null||a.lon==null||!a.hex)return;

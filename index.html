@@ -255,55 +255,78 @@ header{
   maxWidth:120
  }).addTo(map);
 
-// نقشه تاریک با پشتیبان خودکار
-let tileErrors = 0;
-let fallbackActive = false;
-
-darkMap.on('tileerror', function () {
-  tileErrors++;
-
-  if (tileErrors >= 3 && !fallbackActive) {
-    fallbackActive = true;
-    status.textContent = 'نقشه جایگزین فعال شد';
-    map.removeLayer(darkMap);
-    lightMap.addTo(map);
+ // نقشه تاریک اصلی
+ const darkMap = L.tileLayer(
+  'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+  {
+   maxZoom: 20,
+   attribution: '© OpenStreetMap © CARTO'
   }
-});
+ );
 
-darkMap.on('load', function () {
-  tileErrors = 0;
-});
-
-darkMap.addTo(map);
-
-// اصلاح اندازه نقشه در گوشی
-setTimeout(() => map.invalidateSize(true), 300);
-setTimeout(() => map.invalidateSize(true), 1200);
- // نقشه روشن
- const lightMap=L.tileLayer(
+ // نقشه روشن پشتیبان
+ const lightMap = L.tileLayer(
   'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
   {
-   maxZoom:19,
-   attribution:'© OpenStreetMap'
+   maxZoom: 19,
+   attribution: '© OpenStreetMap'
   }
  );
 
  // نقشه ماهواره‌ای
- const satelliteMap=L.tileLayer(
+ const satelliteMap = L.tileLayer(
   'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
   {
-   maxZoom:19,
-   attribution:'Tiles © Esri'
+   maxZoom: 19,
+   attribution: 'Tiles © Esri'
   }
  );
 
- // لایه نام شهرها و کشورها روی ماهواره
- const satelliteLabels=L.tileLayer(
+ // نام شهرها و مرز کشورها
+ const satelliteLabels = L.tileLayer(
   'https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
-  {maxZoom:19,opacity:0.95}
+  {maxZoom:19, opacity:0.95}
  );
 
+ // نمایش نقشه تاریک
+ let tileErrors = 0;
+ let fallbackActive = false;
+
+ darkMap.on('tileerror', function () {
+  tileErrors++;
+  if (tileErrors >= 3 && !fallbackActive) {
+   fallbackActive = true;
+   map.removeLayer(darkMap);
+   lightMap.addTo(map);
+   document.getElementById('status').textContent =
+    'نقشه جایگزین فعال شد';
+  }
+ });
+
  darkMap.addTo(map);
+
+ // انتخاب نوع نقشه
+ L.control.layers({
+  '🌙 نقشه تاریک راداری': darkMap,
+  '☀️ نقشه روشن': lightMap,
+  '🛰️ نقشه ماهواره‌ای': satelliteMap
+ }, null, {
+  position:'topright',
+  collapsed:true
+ }).addTo(map);
+
+ // نمایش برچسب‌های ماهواره‌ای
+ map.on('baselayerchange', function(e) {
+  if(e.layer === satelliteMap) {
+   satelliteLabels.addTo(map);
+  } else {
+   map.removeLayer(satelliteLabels);
+  }
+ });
+
+ setTimeout(() => map.invalidateSize(true), 300);
+ setTimeout(() => map.invalidateSize(true), 1200);
+
 
  L.control.layers({
   '🌙 نقشه تاریک راداری':darkMap,
